@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+        <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Registration</h2>
+        
+        <form id="dataForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Name</label>
+                <input type="text" id="name" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-blue-500 focus:ring-blue-500">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">IC / ID Number</label>
+                <input type="text" id="ic" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-blue-500 focus:ring-blue-500">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Email</label>
+                <input type="email" id="email" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-blue-500 focus:ring-blue-500">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Mobile Phone</label>
+                <input type="tel" id="phone" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-blue-500 focus:ring-blue-500">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Department</label>
+                <select id="department" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-blue-500 focus:ring-blue-500">
+                    <option>HR</option>
+                    <option>IT</option>
+                    <option>Marketing</option>
+                    <option>Sales</option>
+                    <option>Operations</option>
+                </select>
+            </div>
+
+            <button type="submit" class="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition">Submit</button>
+        </form>
+        <p id="statusMsg" class="mt-4 text-center text-sm hidden"></p>
+    </div>
+
+    <script>
+        // 1. Initialize Supabase
+        // IT IS SAFE to expose the ANON KEY here if you set up RLS in Step 1.
+        const supabaseUrl = 'https://ftjmbalkooihipuewqqb.supabase.co'; 
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0am1iYWxrb29paGlwdWV3cXFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc4NjcyOTgsImV4cCI6MjA4MzQ0MzI5OH0.AtQmyHJBXca1bDJYfrRox7BvhH0cfds_Pjvsj69ZyfI'; 
+        const supabase = _supabase.createClient(supabaseUrl, supabaseKey);
+
+        // 2. Handle Form Submission
+        document.getElementById('dataForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const msg = document.getElementById('statusMsg');
+            
+            // UI Loading State
+            btn.disabled = true;
+            btn.innerText = 'Sending...';
+
+            // Collect Data
+            const formData = {
+                full_name: document.getElementById('name').value,
+                identity_card: document.getElementById('ic').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                department: document.getElementById('department').value
+            };
+
+            // Send to Supabase
+            const { error } = await supabase
+                .from('attendees')
+                .insert([formData]);
+
+            // Handle Response
+            msg.classList.remove('hidden');
+            if (error) {
+                console.error('Error:', error);
+                msg.innerText = "Error saving data. Please try again.";
+                msg.className = "mt-4 text-center text-sm text-red-600";
+                btn.disabled = false;
+                btn.innerText = 'Submit';
+            } else {
+                msg.innerText = "Success! Your details have been recorded.";
+                msg.className = "mt-4 text-center text-sm text-green-600";
+                e.target.reset();
+                btn.innerText = 'Submitted';
+            }
+        });
+    </script>
+</body>
+</html>
